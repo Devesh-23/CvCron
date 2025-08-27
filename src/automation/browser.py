@@ -1,8 +1,3 @@
-"""
-Browser management module
-File: src/automation/browser.py
-"""
-
 from playwright.sync_api import sync_playwright
 
 def launch_browser(headless=True, user_agent=None):

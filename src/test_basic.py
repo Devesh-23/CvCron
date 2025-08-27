@@ -1,8 +1,3 @@
-"""
-Basic test script to verify Playwright setup and explore Naukri.com
-Run with: python -m src.test_basic
-"""
-
 import os
 from .config_loader import load_config, load_env
 from .automation.browser import launch_browser

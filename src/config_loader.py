@@ -1,8 +1,3 @@
-"""
-Configuration loading utilities
-File: src/config_loader.py
-"""
-
 import os
 import yaml
 from dotenv import load_dotenv

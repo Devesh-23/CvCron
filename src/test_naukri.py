@@ -1,9 +1,3 @@
-"""
-Test script to run the Naukri automation
-File: test_naukri.py (create this in your root directory)
-"""
-
-import sys
 import os
 
 from .config_loader import load_config, load_env

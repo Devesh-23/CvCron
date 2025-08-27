@@ -1,8 +1,3 @@
-"""
-Core Naukri automation implementation
-File: src/automation/naukri_automation.py
-"""
-
 import time
 import os
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
