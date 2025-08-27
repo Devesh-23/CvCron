@@ -1,0 +1,25 @@
+site:
+  name: "naukri"
+  url: "https://www.naukri.com/mnjuser/profile"
+
+schedule:
+  enabled: true
+  mode: "daily"         # daily | cron
+  time_ist: "09:32"     # HH:MM 24h IST for daily
+  cron: "32 9 * * *"    # if mode=cron (IST)
+
+resume:
+  path: "resumes/latest_resume.pdf"
+
+behavior:
+  retry_on_fail: true
+  max_retries: 2
+  wait_after_login_sec: 4
+  wait_after_upload_sec: 5
+
+observability:
+  screenshots_on_error: true
+  trace_on_error: false
+
+timezone: "Asia/Kolkata"
+user_agent: "auto"      # or custom UA string

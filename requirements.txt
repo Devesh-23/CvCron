@@ -1,0 +1,6 @@
+playwright==1.46.0
+pyyaml==6.0.2
+python-dotenv==1.0.1
+apscheduler==3.10.4
+pytz==2024.1
+rich==13.7.1
