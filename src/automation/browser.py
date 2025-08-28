@@ -1,4 +1,5 @@
 from playwright.sync_api import sync_playwright
+import os
 
 def launch_browser(headless=True, user_agent=None):
     """
@@ -23,7 +24,6 @@ def launch_browser(headless=True, user_agent=None):
     ]
     
     # Force headless in CI environments
-    import os
     if os.getenv('CI') or os.getenv('GITHUB_ACTIONS'):
         headless = True
     
@@ -32,13 +32,20 @@ def launch_browser(headless=True, user_agent=None):
         args=browser_args
     )
     
-    # Create context with realistic settings
+    # Create context with realistic settings and stealth headers
     context = browser.new_context(
         viewport={'width': 1366, 'height': 768},
         user_agent=user_agent or (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
             "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        )
+        ),
+        extra_http_headers={
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+        }
     )
     
     # Create page
