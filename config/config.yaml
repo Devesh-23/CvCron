@@ -5,8 +5,8 @@ site:
 schedule:
   enabled: true
   mode: "daily"         # daily | cron
-  time_ist: "09:32"     # HH:MM 24h IST for daily
-  cron: "32 9 * * *"    # if mode=cron (IST)
+  time_ist: "05:00"     # HH:MM 24h IST for daily
+  cron: "0 5 * * *"     # if mode=cron (IST)
 
 resume:
   path: "resumes/latest_resume.pdf"

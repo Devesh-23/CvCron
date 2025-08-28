@@ -1,0 +1,38 @@
+name: Naukri Resume Automation
+
+on:
+  schedule:
+    - cron: '30 23 * * *'  # 5:00 AM IST = 11:30 PM UTC (IST is UTC+5:30)
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update-resume:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install playwright python-dotenv pyyaml
+        playwright install chromium
+    
+    - name: Create .env file
+      run: |
+        echo "NAUKRI_EMAIL=${{ secrets.NAUKRI_EMAIL }}" >> .env
+        echo "NAUKRI_PASSWORD=${{ secrets.NAUKRI_PASSWORD }}" >> .env
+    
+    - name: Run automation
+      run: python -m src.test_naukri
+    
+    - name: Upload logs on failure
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: automation-logs
+        path: logs/
