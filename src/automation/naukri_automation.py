@@ -145,7 +145,9 @@ class NaukriAutomation:
             # Wait for login processing and handle any popups
             try:
                 self.logger.info("Waiting for login to process...")
-                time.sleep(5)
+                # Longer wait in CI environment
+                wait_time = 10 if os.getenv('CI') else 5
+                time.sleep(wait_time)
                 
                 # Handle any popup that might appear
                 try:
@@ -177,8 +179,39 @@ class NaukriAutomation:
                 current_url = self.page.url
                 self.logger.info(f"Current URL after login: {current_url}")
                 
-                # If still on login page, login failed
+                # If still on login page, check for errors and retry
                 if "login" in current_url.lower():
+                    # Check for error messages
+                    error_selectors = [
+                        '.err-msg',
+                        '.error-message', 
+                        '[class*="error"]',
+                        '.alert-danger'
+                    ]
+                    
+                    error_found = False
+                    for selector in error_selectors:
+                        try:
+                            if self.page.locator(selector).count() > 0:
+                                error_text = self.page.locator(selector).text_content()
+                                self.logger.error(f"Login error: {error_text}")
+                                error_found = True
+                                break
+                        except:
+                            continue
+                    
+                    if not error_found:
+                        self.logger.warning("Still on login page but no error message found")
+                        # Try waiting a bit more in CI
+                        if os.getenv('CI'):
+                            self.logger.info("CI environment - waiting longer...")
+                            time.sleep(10)
+                            current_url = self.page.url
+                            if "login" not in current_url.lower():
+                                self.logger.info("Login successful after extended wait")
+                                self.page.screenshot(path="logs/02_login_success.png")
+                                return True
+                    
                     self.logger.error("Login failed - still on login page")
                     self.page.screenshot(path="logs/02_login_failed.png")
                     return False

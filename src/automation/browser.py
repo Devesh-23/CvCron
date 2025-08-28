@@ -44,13 +44,23 @@ def launch_browser(headless=True, user_agent=None):
     
     browser = pw.chromium.launch(**launch_options)
     
+    # Use different user agent in CI to avoid detection
+    default_ua = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    )
+    
+    if os.getenv('CI') or os.getenv('GITHUB_ACTIONS'):
+        # More generic user agent for CI
+        default_ua = (
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        )
+    
     # Create context with realistic settings and stealth headers
     context = browser.new_context(
         viewport={'width': 1366, 'height': 768},
-        user_agent=user_agent or (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-            "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        ),
+        user_agent=user_agent or default_ua,
         extra_http_headers={
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.5',
