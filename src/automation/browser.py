@@ -23,9 +23,8 @@ def launch_browser(headless=True, user_agent=None):
         '--disable-features=VizDisplayCompositor'
     ]
     
-    # Force headless in CI environments
-    if os.getenv('CI') or os.getenv('GITHUB_ACTIONS'):
-        headless = True
+    # Don't force headless in CI - use Xvfb virtual display instead
+    # This avoids Naukri's headless browser detection
     
     # Add proxy if in CI environment
     launch_options = {
