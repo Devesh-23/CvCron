@@ -26,6 +26,7 @@ jobs:
       run: |
         echo "NAUKRI_EMAIL=${{ secrets.NAUKRI_EMAIL }}" >> .env
         echo "NAUKRI_PASSWORD=${{ secrets.NAUKRI_PASSWORD }}" >> .env
+        echo "HEADLESS=true" >> .env
     
     - name: Run automation
       run: python -m src.test_naukri
