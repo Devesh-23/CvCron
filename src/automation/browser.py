@@ -27,10 +27,23 @@ def launch_browser(headless=True, user_agent=None):
     if os.getenv('CI') or os.getenv('GITHUB_ACTIONS'):
         headless = True
     
-    browser = pw.chromium.launch(
-        headless=headless,
-        args=browser_args
-    )
+    # Add proxy if in CI environment
+    launch_options = {
+        'headless': headless,
+        'args': browser_args
+    }
+    
+    # Use proxy in CI to avoid IP blocks
+    if os.getenv('CI') or os.getenv('GITHUB_ACTIONS'):
+        # Free proxy services (rotate these)
+        proxies = [
+            'socks5://proxy.example.com:1080',  # Replace with actual proxy
+            # Add more proxy servers here
+        ]
+        # Uncomment and add real proxy if available
+        # launch_options['proxy'] = {'server': proxies[0]}
+    
+    browser = pw.chromium.launch(**launch_options)
     
     # Create context with realistic settings and stealth headers
     context = browser.new_context(
