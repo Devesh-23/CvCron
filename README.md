@@ -42,31 +42,27 @@ Run the automation:
 python -m src.test_naukri
 ```
 
-### GitHub Actions (Automated)
+### Automated Scheduling (Local)
 
-#### Setup GitHub Secrets
-1. Go to your repository → Settings → Secrets and variables → Actions
-2. Add these secrets:
-   - `NAUKRI_EMAIL`: Your Naukri email
-   - `NAUKRI_PASSWORD`: Your Naukri password
-   - `RESUME_URL`: Direct download link to your resume
+#### Setup Cron Job (Linux/macOS)
+```bash
+# Edit crontab
+crontab -e
 
-#### Setup Resume URL
-1. Upload your resume to Google Drive
-2. Right-click → "Get link" → "Anyone with the link can view"
-3. Convert the link:
-   - From: `https://drive.google.com/file/d/FILE_ID/view?usp=sharing`
-   - To: `https://drive.google.com/uc?export=download&id=FILE_ID`
-4. Use the converted link as `RESUME_URL` secret
+# Add this line for daily execution at 9 AM
+0 9 * * * cd /path/to/CvCron && source .venv/bin/activate && python -m src.test_naukri
+```
 
-#### Run Automation
-- **Automatic**: Runs daily at 5:00 AM IST
-- **Manual**: Go to Actions tab → "Naukri Resume Automation" → "Run workflow"
+#### Setup Task Scheduler (Windows)
+1. Open Task Scheduler
+2. Create Basic Task
+3. Set trigger to Daily at 9:00 AM
+4. Set action to run: `python -m src.test_naukri`
+5. Set start in: `/path/to/CvCron`
 
 ## Security
 
 - Never commit your `.env` file
-- Store credentials in GitHub Secrets for Actions
 - Keep your credentials secure
 - The `.gitignore` file protects sensitive data
 

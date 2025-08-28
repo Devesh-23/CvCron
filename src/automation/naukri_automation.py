@@ -145,9 +145,7 @@ class NaukriAutomation:
             # Wait for login processing and handle any popups
             try:
                 self.logger.info("Waiting for login to process...")
-                # Longer wait in CI environment
-                wait_time = 10 if os.getenv('CI') else 5
-                time.sleep(wait_time)
+                time.sleep(5)
                 
                 # Handle any popup that might appear
                 try:
@@ -202,15 +200,6 @@ class NaukriAutomation:
                     
                     if not error_found:
                         self.logger.warning("Still on login page but no error message found")
-                        # Try waiting a bit more in CI
-                        if os.getenv('CI'):
-                            self.logger.info("CI environment - waiting longer...")
-                            time.sleep(10)
-                            current_url = self.page.url
-                            if "login" not in current_url.lower():
-                                self.logger.info("Login successful after extended wait")
-                                self.page.screenshot(path="logs/02_login_success.png")
-                                return True
                     
                     self.logger.error("Login failed - still on login page")
                     self.page.screenshot(path="logs/02_login_failed.png")

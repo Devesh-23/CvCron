@@ -1,5 +1,4 @@
 from playwright.sync_api import sync_playwright
-import os
 
 def launch_browser(headless=True, user_agent=None):
     """
@@ -23,51 +22,18 @@ def launch_browser(headless=True, user_agent=None):
         '--disable-features=VizDisplayCompositor'
     ]
     
-    # Don't force headless in CI - use Xvfb virtual display instead
-    # This avoids Naukri's headless browser detection
-    
-    # Add proxy if in CI environment
-    launch_options = {
-        'headless': headless,
-        'args': browser_args
-    }
-    
-    # Use proxy in CI to avoid IP blocks
-    if os.getenv('CI') or os.getenv('GITHUB_ACTIONS'):
-        # Free proxy services (rotate these)
-        proxies = [
-            'socks5://proxy.example.com:1080',  # Replace with actual proxy
-            # Add more proxy servers here
-        ]
-        # Uncomment and add real proxy if available
-        # launch_options['proxy'] = {'server': proxies[0]}
-    
-    browser = pw.chromium.launch(**launch_options)
-    
-    # Use different user agent in CI to avoid detection
-    default_ua = (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    browser = pw.chromium.launch(
+        headless=headless,
+        args=browser_args
     )
     
-    if os.getenv('CI') or os.getenv('GITHUB_ACTIONS'):
-        # More generic user agent for CI
-        default_ua = (
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-            "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        )
-    
-    # Create context with realistic settings and stealth headers
+    # Create context with realistic settings
     context = browser.new_context(
         viewport={'width': 1366, 'height': 768},
-        user_agent=user_agent or default_ua,
-        extra_http_headers={
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Accept-Encoding': 'gzip, deflate',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-        }
+        user_agent=user_agent or (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        )
     )
     
     # Create page
