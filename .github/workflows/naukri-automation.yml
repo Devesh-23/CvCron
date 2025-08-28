@@ -26,7 +26,7 @@ jobs:
       run: |
         echo "NAUKRI_EMAIL=${{ secrets.NAUKRI_EMAIL }}" >> .env
         echo "NAUKRI_PASSWORD=${{ secrets.NAUKRI_PASSWORD }}" >> .env
-        echo "HEADLESS=false" >> .env
+        echo "HEADLESS=true" >> .env
     
     - name: Create resume file
       run: |
@@ -34,7 +34,12 @@ jobs:
         curl -o resumes/latest_resume.pdf -L "${{ secrets.RESUME_URL }}"
     
     - name: Run automation
-      run: python -m src.test_naukri
+      run: |
+        # Install xvfb for headless display
+        sudo apt-get update
+        sudo apt-get install -y xvfb
+        # Run with xvfb-run as fallback
+        xvfb-run -a python -m src.test_naukri
     
     - name: Upload logs and debug files
       if: always()

@@ -22,6 +22,11 @@ def launch_browser(headless=True, user_agent=None):
         '--disable-features=VizDisplayCompositor'
     ]
     
+    # Force headless in CI environments
+    import os
+    if os.getenv('CI') or os.getenv('GITHUB_ACTIONS'):
+        headless = True
+    
     browser = pw.chromium.launch(
         headless=headless,
         args=browser_args
