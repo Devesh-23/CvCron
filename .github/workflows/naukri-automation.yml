@@ -28,6 +28,11 @@ jobs:
         echo "NAUKRI_PASSWORD=${{ secrets.NAUKRI_PASSWORD }}" >> .env
         echo "HEADLESS=true" >> .env
     
+    - name: Create resume file
+      run: |
+        mkdir -p resumes
+        curl -o resumes/latest_resume.pdf -L "${{ secrets.RESUME_URL }}"
+    
     - name: Run automation
       run: python -m src.test_naukri
     
