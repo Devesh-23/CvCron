@@ -37,21 +37,33 @@ class NaukriAutomation:
             
             # Navigate to Naukri login page
             self.page.goto("https://www.naukri.com/nlogin/login", wait_until="networkidle")
-            time.sleep(2)
+            time.sleep(3)
             
             # Take screenshot for debugging
-            if self.config.get("observability", {}).get("screenshots_on_error", True):
-                os.makedirs("logs", exist_ok=True)
-                self.page.screenshot(path="logs/01_login_page.png")
+            os.makedirs("logs", exist_ok=True)
+            self.page.screenshot(path="logs/01_login_page.png")
+            
+            # Log page content for debugging
+            with open("logs/login_page_content.html", "w", encoding="utf-8") as f:
+                f.write(self.page.content())
+            
+            self.logger.info(f"Current URL: {self.page.url}")
+            self.logger.info(f"Page title: {self.page.title()}")
             
             # Try multiple email selectors
             email_selectors = [
-                "input[placeholder='Enter your active Email ID / Username']",
+                "#usernameField",
+                "input[placeholder='Enter Email ID / Username']",
                 "input[name='email']",
                 "input[type='email']",
-                "#usernameField",
+                "input[type='text']",
+                "#emailId",
                 "input[placeholder*='Email']",
-                "input[placeholder*='email']"
+                "input[placeholder*='email']",
+                "input[placeholder*='Username']",
+                "input[id*='email']",
+                "input[class*='email']",
+                "input[data-automation='email']"
             ]
             
             email_filled = False
@@ -71,12 +83,16 @@ class NaukriAutomation:
             
             # Try multiple password selectors
             password_selectors = [
-                "input[placeholder='Enter your password']",
+                "#passwordField",
+                "input[placeholder='Enter Password']",
                 "input[name='password']",
                 "input[type='password']",
-                "#passwordField",
+                "#password",
                 "input[placeholder*='Password']",
-                "input[placeholder*='password']"
+                "input[placeholder*='password']",
+                "input[id*='password']",
+                "input[class*='password']",
+                "input[data-automation='password']"
             ]
             
             password_filled = False
@@ -96,41 +112,85 @@ class NaukriAutomation:
             
             # Try to submit the form directly
             try:
-                # Focus on password field and press Enter
-                self.page.focus("input[type='password']")
-                self.page.keyboard.press("Enter")
-                self.logger.info("Form submitted using Enter key")
+                # Look for login button and click it
+                login_button_selectors = [
+                    "button[type='submit']:has-text('Login')",
+                    "button:has-text('Login')",
+                    ".btn:has-text('Login')",
+                    "#loginForm button[type='submit']",
+                    "input[type='submit']"
+                ]
+                
+                button_clicked = False
+                for button_selector in login_button_selectors:
+                    try:
+                        if self.page.locator(button_selector).count() > 0:
+                            self.page.click(button_selector)
+                            self.logger.info(f"Login button clicked: {button_selector}")
+                            button_clicked = True
+                            break
+                    except:
+                        continue
+                
+                if not button_clicked:
+                    # Fallback to Enter key
+                    self.page.focus("#passwordField")
+                    self.page.keyboard.press("Enter")
+                    self.logger.info("Form submitted using Enter key")
                 
             except Exception as e:
                 self.logger.error(f"Form submission failed: {e}")
                 return False
             
-            # Wait for login processing and navigate to homepage
+            # Wait for login processing and handle any popups
             try:
                 self.logger.info("Waiting for login to process...")
-                time.sleep(3)
+                time.sleep(5)
                 
-                # Navigate directly to homepage to test if login worked
-                self.logger.info("Navigating to homepage to verify login...")
-                self.page.goto("https://www.naukri.com/mnjuser/homepage", wait_until="networkidle")
-                time.sleep(2)
+                # Handle any popup that might appear
+                try:
+                    popup_selectors = [
+                        "button:has-text('Close')",
+                        "button:has-text('Skip')",
+                        "button:has-text('Later')",
+                        "button:has-text('No Thanks')",
+                        ".close",
+                        ".modal-close",
+                        "[data-dismiss='modal']",
+                        ".popup-close",
+                        "button[aria-label='Close']"
+                    ]
+                    
+                    for popup_selector in popup_selectors:
+                        try:
+                            if self.page.locator(popup_selector).count() > 0:
+                                self.page.click(popup_selector, timeout=2000)
+                                self.logger.info(f"Closed popup using: {popup_selector}")
+                                time.sleep(1)
+                                break
+                        except:
+                            continue
+                except Exception as e:
+                    self.logger.info(f"No popup found or error closing popup: {e}")
                 
+                # Check current URL to see if login was successful
                 current_url = self.page.url
-                self.logger.info(f"Current URL after homepage navigation: {current_url}")
+                self.logger.info(f"Current URL after login: {current_url}")
                 
-                # If we're redirected back to login, login failed
+                # If still on login page, login failed
                 if "login" in current_url.lower():
-                    self.logger.error("Login failed - redirected back to login page")
+                    self.logger.error("Login failed - still on login page")
                     self.page.screenshot(path="logs/02_login_failed.png")
                     return False
-                else:
-                    self.logger.info("Login successful - accessed homepage")
-                    self.page.screenshot(path="logs/02_login_success.png")
-                    return True
+                
+                # Try to navigate to profile page directly
+                self.logger.info("Login successful, proceeding to profile")
+                self.page.screenshot(path="logs/02_login_success.png")
+                return True
                     
-            except PlaywrightTimeoutError:
-                self.logger.error("Login timeout - checking current state")
-                self.page.screenshot(path="logs/02_login_timeout.png")
+            except Exception as e:
+                self.logger.error(f"Login process error: {e}")
+                self.page.screenshot(path="logs/02_login_error.png")
                 return False
                 
         except Exception as e:
@@ -145,9 +205,9 @@ class NaukriAutomation:
             self.logger.info("Navigating to profile...")
             
             # Go directly to profile page
-            profile_url = "https://www.naukri.com/mnjuser/profile?id=&altresid"
-            self.page.goto(profile_url, wait_until="networkidle")
-            time.sleep(2)
+            profile_url = "https://www.naukri.com/mnjuser/profile"
+            self.page.goto(profile_url, timeout=60000)
+            time.sleep(3)
             
             self.logger.info("Profile page loaded")
             self.page.screenshot(path="logs/03_profile_page.png")
@@ -169,8 +229,7 @@ class NaukriAutomation:
                 self.logger.error(f"Resume file not found: {resume_path}")
                 return False
             
-            # Look for resume upload/update elements
-            # Naukri typically has "Update Resume" or "Upload Resume" buttons
+            # Look for file input directly (original working logic)
             possible_selectors = [
                 "input[type='file'][accept*='pdf']",
                 "input[type='file']",
