@@ -1,6 +1,10 @@
 from playwright.sync_api import sync_playwright
+import os
 
 def launch_browser(headless=True, user_agent=None):
+    # Force headless in production/server environment
+    if os.getenv('RENDER') or os.getenv('PORT'):
+        headless = True
     """
     Launch browser and return playwright instance, browser, and page
     
