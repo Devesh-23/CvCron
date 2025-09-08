@@ -16,15 +16,16 @@ Run the setup script:
 
 2. **Add this line** (replace `/path/to/CvCron` with your actual path):
    ```bash
-   0 9 * * * cd /Users/dpachaur/Desktop/My\ Personal\ Timepass\ /Scripts\ that\ make\ my\ work\ easy/CvCron && source .venv/bin/activate && python -m src.test_naukri >> logs/cron.log 2>&1
+   30 9 * * * cd /Users/dpachaur/Desktop/My\ Personal\ Timepass\ /Scripts\ that\ make\ my\ work\ easy/CvCron && source .venv/bin/activate && python -m src.test_naukri >> logs/cron.log 2>&1
    ```
 
 ## Schedule Options
 
+- **Daily 9:30 AM**: `30 9 * * *` (current)
 - **Daily 9 AM**: `0 9 * * *`
 - **Daily 6 AM**: `0 6 * * *`  
-- **Weekdays only**: `0 9 * * 1-5`
-- **Every 2 days**: `0 9 */2 * *`
+- **Weekdays only**: `30 9 * * 1-5`
+- **Every 2 days**: `30 9 */2 * *`
 
 ## Management
 
